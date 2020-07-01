@@ -17,7 +17,7 @@ class LimitSizeStream extends stream.Transform {
     }
 
     let str = chunk.toString();
-    this.push(chunk, 'utf8');
+    this.push(chunk);
 
     callback();
   }

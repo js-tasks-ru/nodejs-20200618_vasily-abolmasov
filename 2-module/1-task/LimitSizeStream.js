@@ -6,17 +6,16 @@ class LimitSizeStream extends stream.Transform {
   #filled = 0;
 
   constructor(options) {
-    super();
+    super(options);
     this.#size = options.limit;
   }
 
   _transform(chunk, encoding, callback) {
     this.#filled += chunk.length;
     if (this.#filled > this.#size) {
-      throw new LimitExceededError('Error');
+      throw new LimitExceededError('something bad happened');
     }
 
-    let str = chunk.toString();
     this.push(chunk);
 
     callback();

@@ -15,15 +15,11 @@ class LineSplitStream extends stream.Transform {
       let rowEnd = chunkString.indexOf(os.EOL, rowStart);
       if (rowEnd >= 0) {
         this.push(this.#str + chunkString.substring(rowStart, rowEnd))
-        // console.log(this.#str + chunkString.substring(rowStart, rowEnd));
         this.#str = '';
       } else {
         this.#str += chunkString.substring(rowStart, chunkString.length);
-        // console.log(this.#str);
         break;
       }
-      // rowEnd = rowEnd >= 0 ? rowEnd : chunkString.length;
-      // this.push();
       rowStart = ++rowEnd;
 
       if (rowEnd >= chunkString.length) {
@@ -34,9 +30,7 @@ class LineSplitStream extends stream.Transform {
   }
 
   _flush(callback) {
-    // console.log(this.#str);
     this.push(this.#str);
-    // console.log(callback);
     callback();
   }
 }

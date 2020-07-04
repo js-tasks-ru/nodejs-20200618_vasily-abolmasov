@@ -19,7 +19,6 @@ server.on('request', (req, res) => {
     case 'GET':
       try {
         if (req.url.indexOf('/', 1) >= 0) {
-          console.log(400);
           res.statusCode = 400;
           res.end('Subfolders are not supported');
           return;

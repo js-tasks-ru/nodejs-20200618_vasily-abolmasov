@@ -11,12 +11,23 @@ server.on('request', (req, res) => {
 
   const filepath = path.join(__dirname, 'files', pathname);
   const bytesLimit = 1000000;
-  let reqEnded = false;
 
   function return413() {
     fs.unlinkSync(filepath);
     res.statusCode = 413;
-    res.end();
+    res.end('413');
+  }
+
+  function deleteIfFileExist() {
+    if (fs.existsSync(filepath)) {
+      fs.unlinkSync(filepath);
+    }
+  }
+
+  function return500() {
+    res.statusCode = 500;
+    deleteIfFileExist();
+    res.end('500');
   }
 
   switch (req.method) {
@@ -35,30 +46,27 @@ server.on('request', (req, res) => {
 
       const limitStream = new LimitSizeStream({limit: bytesLimit} );
       const outStream = fs.createWriteStream(filepath);
-      limitStream.pipe(outStream);
+      req.pipe(limitStream).pipe(outStream);
 
-      limitStream.on('error', function(err) {
+      limitStream.on('error', (err) => {
         return413();
       });
 
-      req.on('close', function(err) {
-        if (!reqEnded) {
-          return413();
+      req.on('close', (err) => {
+        if (!req.complete) {
+          deleteIfFileExist();
         }
       });
 
-      req.on('data', function(chunk) {
-        // console.log('data');
+      req.on('data', (chunk) => {
         try {
           limitStream.write(chunk);
         } catch (e) {
-          return413();
+          return500();
         }
       });
 
-      req.on('end', function(chunk) {
-        reqEnded = true;
-        // console.log('end');
+      req.on('end', (chunk) => {
         if (chunk) {
           try {
             limitStream.write(chunk);
@@ -66,21 +74,20 @@ server.on('request', (req, res) => {
             res.end();
             return;
           } catch (e) {
-            return413();
+            return500();
             return;
           }
         }
-        res.statusCode = 200;
+        res.statusCode = 201;
         res.end();
       });
 
-      req.on('error', function(chunk) {
-        console.log('error');
+      req.on('error', (chunk) => {
         if (chunk) {
           try {
             limitStream.write(chunk);
           } catch (e) {
-            return413();
+            return500();
             return;
           }
         }

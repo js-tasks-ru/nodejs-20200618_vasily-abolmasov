@@ -13,12 +13,15 @@ const subscribers = {};
 router.get('/subscribe', async (ctx, next) => {
   const id = Math.random();
   subscribers[id] = null;
+  let interval;
   await new Promise((resolve, reject) => {
-    setInterval(() => {
+    interval = setInterval(() => {
       if (subscribers[id] !== null) {
         resolve(subscribers[id]);
       }
     }, 200);
+  }).then(() => {
+    clearInterval(interval);
   });
   ctx.status = 200;
   ctx.body = message;

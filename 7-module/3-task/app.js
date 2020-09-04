@@ -57,7 +57,6 @@ router.use(async (ctx, next) => {
     return next();
   }
   const msg = 'Неверный аутентификационный токен';
-  console.error(msg);
   ctx.status = 401;
   ctx.body = {error: msg};
 });

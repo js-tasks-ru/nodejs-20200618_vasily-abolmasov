@@ -66,6 +66,7 @@ router.use(async (ctx, next) => {
   await session.save();
 
   ctx.user = session.user;
+  ctx.token = session.token;
   return next();
 });
 
@@ -87,7 +88,7 @@ router.post('/confirm', confirm);
 router.get('/orders', mustBeAuthenticated, getOrdersList);
 router.post('/orders', mustBeAuthenticated, handleMongooseValidationError, checkout);
 
-router.get('/messages', messageList);
+router.get('/messages', mustBeAuthenticated, messageList);
 
 app.use(router.routes());
 
